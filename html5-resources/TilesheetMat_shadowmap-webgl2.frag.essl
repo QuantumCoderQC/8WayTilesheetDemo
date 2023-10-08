@@ -1,0 +1,71 @@
+#version 300 es
+precision mediump float;
+precision highp int;
+
+uniform highp float param_Direction_texread;
+uniform highp vec2 _tilesheetTiles;
+uniform highp vec2 _tilesheetOffset;
+uniform highp sampler2D Tilesheet;
+
+in highp vec2 texCoord;
+
+highp vec3 safe_divide(highp vec3 a, highp vec3 b)
+{
+    highp float _20;
+    if (b.x != 0.0)
+    {
+        _20 = a.x / b.x;
+    }
+    else
+    {
+        _20 = 0.0;
+    }
+    highp float _31;
+    if (b.y != 0.0)
+    {
+        _31 = a.y / b.y;
+    }
+    else
+    {
+        _31 = 0.0;
+    }
+    highp float _42;
+    if (b.z != 0.0)
+    {
+        _42 = a.z / b.z;
+    }
+    else
+    {
+        _42 = 0.0;
+    }
+    return vec3(_20, _31, _42);
+}
+
+void main()
+{
+    highp float Direction_texread_Value_res = param_Direction_texread;
+    highp vec3 ShaderData_texread_Vector_res = vec3(_tilesheetTiles, 0.0);
+    highp float SeparateXYZ_texread_Y_res = ShaderData_texread_Vector_res.y;
+    highp float Math_texread_Value_res = Direction_texread_Value_res / SeparateXYZ_texread_Y_res;
+    highp vec3 CombineXYZ_texread_Vector_res = vec3(0.0, Math_texread_Value_res, 0.0);
+    highp vec3 Group_001_UVMap_texread_UV_res = vec3(texCoord.x, 1.0 - texCoord.y, 0.0);
+    Group_001_UVMap_texread_UV_res = Group_001_UVMap_texread_UV_res;
+    highp vec3 Group_001_VectorMath_texread_Vector_res = Group_001_UVMap_texread_UV_res - vec3(0.0, 1.0, 1.0);
+    highp float SeparateXYZ_texread_X_res = ShaderData_texread_Vector_res.x;
+    highp float Group_001_GroupInput_texread_TilesX_res = SeparateXYZ_texread_X_res;
+    highp float Group_001_GroupInput_texread_TilesY_res = SeparateXYZ_texread_Y_res;
+    highp vec3 Group_001_CombineXYZ_texread_Vector_res = vec3(Group_001_GroupInput_texread_TilesX_res, Group_001_GroupInput_texread_TilesY_res, 1.0);
+    highp vec3 Group_001_VectorMath_001_texread_Vector_res = safe_divide(Group_001_VectorMath_texread_Vector_res, Group_001_CombineXYZ_texread_Vector_res);
+    highp vec3 Group_001_ShaderData_texread_Vector_res = vec3(_tilesheetOffset, 0.0);
+    highp vec3 Group_001_VectorMath_002_texread_Vector_res = Group_001_VectorMath_001_texread_Vector_res + Group_001_ShaderData_texread_Vector_res;
+    highp vec3 Group_001_texread_UV_res = Group_001_VectorMath_002_texread_Vector_res;
+    highp vec3 VectorMath_texread_Vector_res = CombineXYZ_texread_Vector_res + Group_001_texread_UV_res;
+    highp vec4 Tilesheet_texread_store = texture(Tilesheet, vec2(VectorMath_texread_Vector_res.x, 1.0 - VectorMath_texread_Vector_res.y));
+    highp float Tilesheet_Alpha_res = Tilesheet_texread_store.w;
+    highp float opacity = Tilesheet_Alpha_res - 0.00019999999494757503271102905273438;
+    if (opacity < 0.20000000298023223876953125)
+    {
+        discard;
+    }
+}
+

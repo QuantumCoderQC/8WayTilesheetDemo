@@ -1,0 +1,114 @@
+#version 300 es
+precision mediump float;
+precision highp int;
+
+uniform highp float param_Direction_texread;
+uniform highp vec2 _tilesheetTiles;
+uniform highp vec2 _tilesheetOffset;
+uniform highp sampler2D Tilesheet;
+
+in highp vec3 wnormal;
+in highp vec2 texCoord;
+out highp vec4 fragColor[3];
+
+highp vec3 safe_divide(highp vec3 a, highp vec3 b)
+{
+    highp float _74;
+    if (b.x != 0.0)
+    {
+        _74 = a.x / b.x;
+    }
+    else
+    {
+        _74 = 0.0;
+    }
+    highp float _84;
+    if (b.y != 0.0)
+    {
+        _84 = a.y / b.y;
+    }
+    else
+    {
+        _84 = 0.0;
+    }
+    highp float _95;
+    if (b.z != 0.0)
+    {
+        _95 = a.z / b.z;
+    }
+    else
+    {
+        _95 = 0.0;
+    }
+    return vec3(_74, _84, _95);
+}
+
+highp vec2 octahedronWrap(highp vec2 v)
+{
+    return (vec2(1.0) - abs(v.yx)) * vec2((v.x >= 0.0) ? 1.0 : (-1.0), (v.y >= 0.0) ? 1.0 : (-1.0));
+}
+
+highp float packFloatInt16(highp float f, uint i)
+{
+    uint bitsInt = i << 12u;
+    uint bitsFloat = uint(f * 4095.0);
+    return float(bitsInt | bitsFloat);
+}
+
+highp float packFloat2(highp float f1, highp float f2)
+{
+    return floor(f1 * 255.0) + min(f2, 0.9900000095367431640625);
+}
+
+void main()
+{
+    highp vec3 n = normalize(wnormal);
+    highp float Direction_texread_Value_res = param_Direction_texread;
+    highp vec3 ShaderData_texread_Vector_res = vec3(_tilesheetTiles, 0.0);
+    highp float SeparateXYZ_texread_Y_res = ShaderData_texread_Vector_res.y;
+    highp float Math_texread_Value_res = Direction_texread_Value_res / SeparateXYZ_texread_Y_res;
+    highp vec3 CombineXYZ_texread_Vector_res = vec3(0.0, Math_texread_Value_res, 0.0);
+    highp vec3 Group_001_UVMap_texread_UV_res = vec3(texCoord.x, 1.0 - texCoord.y, 0.0);
+    Group_001_UVMap_texread_UV_res = Group_001_UVMap_texread_UV_res;
+    highp vec3 Group_001_VectorMath_texread_Vector_res = Group_001_UVMap_texread_UV_res - vec3(0.0, 1.0, 1.0);
+    highp float SeparateXYZ_texread_X_res = ShaderData_texread_Vector_res.x;
+    highp float Group_001_GroupInput_texread_TilesX_res = SeparateXYZ_texread_X_res;
+    highp float Group_001_GroupInput_texread_TilesY_res = SeparateXYZ_texread_Y_res;
+    highp vec3 Group_001_CombineXYZ_texread_Vector_res = vec3(Group_001_GroupInput_texread_TilesX_res, Group_001_GroupInput_texread_TilesY_res, 1.0);
+    highp vec3 Group_001_VectorMath_001_texread_Vector_res = safe_divide(Group_001_VectorMath_texread_Vector_res, Group_001_CombineXYZ_texread_Vector_res);
+    highp vec3 Group_001_ShaderData_texread_Vector_res = vec3(_tilesheetOffset, 0.0);
+    highp vec3 Group_001_VectorMath_002_texread_Vector_res = Group_001_VectorMath_001_texread_Vector_res + Group_001_ShaderData_texread_Vector_res;
+    highp vec3 Group_001_texread_UV_res = Group_001_VectorMath_002_texread_Vector_res;
+    highp vec3 VectorMath_texread_Vector_res = CombineXYZ_texread_Vector_res + Group_001_texread_UV_res;
+    highp vec4 Tilesheet_texread_store = texture(Tilesheet, vec2(VectorMath_texread_Vector_res.x, 1.0 - VectorMath_texread_Vector_res.y));
+    highp vec3 _198 = pow(Tilesheet_texread_store.xyz, vec3(2.2000000476837158203125));
+    Tilesheet_texread_store = vec4(_198.x, _198.y, _198.z, Tilesheet_texread_store.w);
+    highp vec3 Tilesheet_Color_res = Tilesheet_texread_store.xyz;
+    highp float Tilesheet_Alpha_res = Tilesheet_texread_store.w;
+    highp vec3 basecol = Tilesheet_Color_res * 0.0;
+    highp float roughness = 0.0;
+    highp float metallic = 0.0;
+    highp float occlusion = 1.0;
+    highp float specular = 1.0;
+    highp vec3 emissionCol = Tilesheet_Color_res * 1.0;
+    highp float opacity = Tilesheet_Alpha_res - 0.00019999999494757503271102905273438;
+    if (opacity < 0.5)
+    {
+        discard;
+    }
+    n /= vec3((abs(n.x) + abs(n.y)) + abs(n.z));
+    highp vec2 _246;
+    if (n.z >= 0.0)
+    {
+        _246 = n.xy;
+    }
+    else
+    {
+        _246 = octahedronWrap(n.xy);
+    }
+    n = vec3(_246.x, _246.y, n.z);
+    fragColor[0] = vec4(n.xy, roughness, packFloatInt16(metallic, 0u));
+    fragColor[1] = vec4(basecol, packFloat2(occlusion, specular));
+    fragColor[2] = vec4(emissionCol, 0.0);
+}
+
